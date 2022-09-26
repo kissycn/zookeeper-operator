@@ -1,0 +1,20 @@
+# permissions for end users to view zookeepers.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: zookeeper-viewer-role
+rules:
+- apiGroups:
+  - hadoop.dtweave.io
+  resources:
+  - zookeepers
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - hadoop.dtweave.io
+  resources:
+  - zookeepers/status
+  verbs:
+  - get

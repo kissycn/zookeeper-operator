@@ -3,4 +3,14 @@ layout:
 - go.kubebuilder.io/v3
 projectName: zookeeper-operator
 repo: dtweave.io/zookeeper-operator
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: dtweave.io
+  group: hadoop
+  kind: Zookeeper
+  path: dtweave.io/zookeeper-operator/api/v1alpha1
+  version: v1alpha1
 version: "3"

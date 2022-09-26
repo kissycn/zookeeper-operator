@@ -1,0 +1,6 @@
+apiVersion: hadoop.dtweave.io/v1alpha1
+kind: Zookeeper
+metadata:
+  name: zookeeper-sample
+spec:
+  # TODO(user): Add fields here
