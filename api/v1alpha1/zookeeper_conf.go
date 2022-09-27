@@ -102,6 +102,11 @@ type ZookeeperConf struct {
 	// The default value is false.
 	// +kubebuilder:default:=false
 	QuorumListenOnAllIPs bool `json:"quorumListenOnAllIPs,omitempty"`
+	// ExistingCfgConfigmap
+	//
+	// The name of an existing ConfigMap with your custom configuration for ZooKeeper zoo.cfg file
+	// Notice：If set this value operator will replace all other conf item
+	ExistingCfgConfigmap string `json:"existingCfgConfigmap,omitempty"`
 	// Autopurge
 	//
 	Autopurge Autopurge `json:"autopurge,omitempty"`

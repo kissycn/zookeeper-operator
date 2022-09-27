@@ -18,13 +18,11 @@ package controllers
 
 import (
 	"context"
-
+	hadoopv1alpha1 "dtweave.io/zookeeper-operator/api/v1alpha1"
+	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/log"
-
-	hadoopv1alpha1 "dtweave.io/zookeeper-operator/api/v1alpha1"
 )
 
 // ZookeeperReconciler reconciles a Zookeeper object
@@ -47,9 +45,26 @@ type ZookeeperReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.12.2/pkg/reconcile
 func (r *ZookeeperReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = log.FromContext(ctx)
+	//log := log.FromContext(ctx)
+	var instance hadoopv1alpha1.Zookeeper
+	err := r.Client.Get(ctx, req.NamespacedName, &instance)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			// Request object not found, could have been deleted after reconcile request - return and don't requeue:
+			return ctrl.Result{}, nil
+		}
+		// Error reading the object - requeue the request:
+		return ctrl.Result{}, err
+	}
 
-	// TODO(user): your logic here
+	for _, f := range []reconcileFunc{
+		r.reconcileFinalizers,
+		r.reconcileConfigMap,
+	} {
+		if err = f(&instance); err != nil {
+			return ctrl.Result{}, err
+		}
+	}
 
 	return ctrl.Result{}, nil
 }
@@ -59,4 +74,16 @@ func (r *ZookeeperReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&hadoopv1alpha1.Zookeeper{}).
 		Complete(r)
+}
+
+type reconcileFunc func(instance *hadoopv1alpha1.Zookeeper) error
+
+func (r *ZookeeperReconciler) reconcileFinalizers(instance *hadoopv1alpha1.Zookeeper) (err error) {
+	// TODO
+	return nil
+}
+
+func (r *ZookeeperReconciler) reconcileConfigMap(instance *hadoopv1alpha1.Zookeeper) error {
+
+	return nil
 }

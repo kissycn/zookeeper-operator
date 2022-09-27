@@ -57,45 +57,44 @@ make undeploy
 
 ### ZooKeeper chart parameters
 
-| Name                             | Description                                                                                                                | Value                   |
-|----------------------------------|----------------------------------------------------------------------------------------------------------------------------|-------------------------|
-| `conf.tickTime`                  | Basic time unit (in milliseconds) used by ZooKeeper for heartbeats                                                         | `2000`                  |
-| `conf.initLimit`                 | ZooKeeper uses to limit the length of time the ZooKeeper servers in quorum have to connect to a leader                     | `10`                    |
-| `conf.syncLimit`                 | How far out of date a server can be from a leader                                                                          | `5`                     |
-| `conf.preAllocSize`              | Block size for transaction log file                                                                                        | `65536`                 |
-| `conf.snapCount`                 | The number of transactions recorded in the transaction log before a snapshot can be taken (and the transaction log rolled) | `100000`                |
-| `conf.maxClientCnxns`            | Limits the number of concurrent connections that a single client may make to a single member of the ZooKeeper ensemble     | `60`                    |
-| `conf.maxSessionTimeout`         | Maximum session timeout (in milliseconds) that the server will allow the client to negotiate                               | `40000`                 |
-| `conf.minSessionTimeout`         | The minimum session timeout in milliseconds that the server will allow the client to negotiate                             | `4000`                  |
-| `conf.globalOutstandingLimit`    | Clients can submit requests faster than ZooKeeper can process them, especially if there are a lot of clients.              | `1000`                  |
-| `conf.commitLogCount`            | Zookeeper maintains an in-memory list of last committed requests for fast synchronization with followers                   | `500`                   |
-| `conf.snapSizeLimitInKb`         | Snapshot size limit in Kb,The defult value is 4GB                                                                          | `4194304`               |
-| `conf.quorumListenOnAllIPs`      | Allow ZooKeeper to listen for connections from its peers on all available IP addresses                                     | `false`                 |
-| `conf.autopurge.snapRetainCount` | The most recent snapshots amount (and corresponding transaction logs) to retain                                            | `3`                     |
-| `conf.autopurge.purgeInterval`   | The time interval (in hours) for which the purge task has to be triggered                                                  | `0`                     |
-| `conf.logLevel`                  | Log level for the ZooKeeper server. ERROR by default                                                                       | `ERROR`                 |
-| `conf.jvmFlags`                  | Default JVM flags for the ZooKeeper process                                                                                | `""`                    |
-| `conf.dataLogDir`                | Dedicated data log directory                                                                                               | `""`                    |
-| `conf.dataDir`                   | Dedicated data log directory                                                                                               | `""`                    |
-| `conf.configuration`             | Configure ZooKeeper with a custom zoo.cfg file                                                                             | `""`                    |
-| `conf.existingConfigmap`         | The name of an existing ConfigMap with your custom configuration for ZooKeeper                                             | `""`                    |
-| `conf.extraEnvVars`              | Array with extra environment variables to add to ZooKeeper nodes                                                           | `[]`                    |
-| `conf.extraEnvVarsCM`            | Name of existing ConfigMap containing extra env vars for ZooKeeper nodes                                                   | `""`                    |
-| `conf.extraEnvVarsSecret`        | Name of existing Secret containing extra env vars for ZooKeeper nodes                                                      | `""`                    |
-| `conf.command`                   | Override default container command (useful when using custom images)                                                       | `["/scripts/setup.sh"]` |
-| `conf.args`                      | Override default container args (useful when using custom images)                                                          | `[]`                    |
-| `conf.auth.client.enabled`       | Enable ZooKeeper client-server authentication. It uses SASL/Digest-MD5                                                     | `false`                 |
-| `conf.auth.client.clientUser`         | User that will use ZooKeeper clients to auth                                                                               | `""`                    |
-| `conf.auth.client.clientPassword`     | Password that will use ZooKeeper clients to auth                                                                           | `""`                    |
-| `conf.auth.client.serverUsers`        | Comma, semicolon or whitespace separated list of user to be created                                                        | `""`                    |
-| `conf.auth.client.serverPasswords`    | Comma, semicolon or whitespace separated list of passwords to assign to users when created                                 | `""`                    |
-| `conf.auth.client.existingSecret`     | Use existing secret (ignores previous passwords)                                                                           | `""`                    |
-| `conf.auth.quorum.enabled`            | Enable ZooKeeper server-server authentication. It uses SASL/Digest-MD5                                                     | `false`                 |
-| `conf.auth.quorum.learnerUser`        | User that the ZooKeeper quorumLearner will use to authenticate to quorumServers.                                           | `""`                    |
-| `conf.auth.quorum.learnerPassword`    | Password that the ZooKeeper quorumLearner will use to authenticate to quorumServers.                                       | `""`                    |
-| `conf.auth.quorum.serverUsers`        | Comma, semicolon or whitespace separated list of users for the quorumServers.                                              | `""`                    |
-| `conf.auth.quorum.serverPasswords`    | Comma, semicolon or whitespace separated list of passwords to assign to users when created                                 | `""`                    |
-| `conf.auth.quorum.existingSecret`     | Use existing secret (ignores previous passwords)                                                                           | `""`                    |
+| Name                               | Description                                                                                                               | Value                   |
+|------------------------------------|---------------------------------------------------------------------------------------------------------------------------|-------------------------|
+| `conf.tickTime`                    | Basic time unit (in milliseconds) used by ZooKeeper for heartbeats                                                        | `2000`                  |
+| `conf.initLimit`                   | ZooKeeper uses to limit the length of time the ZooKeeper servers in quorum have to connect to a leader                    | `10`                    |
+| `conf.syncLimit`                   | How far out of date a server can be from a leader                                                                         | `5`                     |
+| `conf.preAllocSize`                | Block size for transaction log file                                                                                       | `65536`                 |
+| `conf.snapCount`                   | The number of transactions recorded in the transaction log before a snapshot can be taken (and the transaction log rolled) | `100000`                |
+| `conf.maxClientCnxns`              | Limits the number of concurrent connections that a single client may make to a single member of the ZooKeeper ensemble    | `60`                    |
+| `conf.maxSessionTimeout`           | Maximum session timeout (in milliseconds) that the server will allow the client to negotiate                              | `40000`                 |
+| `conf.minSessionTimeout`           | The minimum session timeout in milliseconds that the server will allow the client to negotiate                            | `4000`                  |
+| `conf.globalOutstandingLimit`      | Clients can submit requests faster than ZooKeeper can process them, especially if there are a lot of clients.             | `1000`                  |
+| `conf.commitLogCount`              | Zookeeper maintains an in-memory list of last committed requests for fast synchronization with followers                  | `500`                   |
+| `conf.snapSizeLimitInKb`           | Snapshot size limit in Kb,The defult value is 4GB                                                                         | `4194304`               |
+| `conf.quorumListenOnAllIPs`        | Allow ZooKeeper to listen for connections from its peers on all available IP addresses                                    | `false`                 |
+| `conf.autopurge.snapRetainCount`   | The most recent snapshots amount (and corresponding transaction logs) to retain                                           | `3`                     |
+| `conf.autopurge.purgeInterval`     | The time interval (in hours) for which the purge task has to be triggered                                                 | `0`                     |
+| `conf.logLevel`                    | Log level for the ZooKeeper server. ERROR by default                                                                      | `ERROR`                 |
+| `conf.jvmFlags`                    | Default JVM flags for the ZooKeeper process                                                                               | `""`                    |
+| `conf.dataLogDir`                  | Dedicated data log directory                                                                                              | `""`                    |
+| `conf.dataDir`                     | Dedicated data log directory                                                                                              | `""`                    |
+| `conf.existingCfgConfigmap`        | The name of an existing ConfigMap with your custom configuration for ZooKeeper zoo.cfg file<br/>Notice：If set this value operator will replace all other conf item                               | `""`                    |
+| `conf.extraEnvVars`                | Array with extra environment variables to add to ZooKeeper nodes                                                          | `[]`                    |
+| `conf.extraEnvVarsCM`              | Name of existing ConfigMap containing extra env vars for ZooKeeper nodes                                                  | `""`                    |
+| `conf.extraEnvVarsSecret`          | Name of existing Secret containing extra env vars for ZooKeeper nodes                                                     | `""`                    |
+| `conf.command`                     | Override default container command (useful when using custom images)                                                      | `["/scripts/setup.sh"]` |
+| `conf.args`                        | Override default container args (useful when using custom images)                                                         | `[]`                    |
+| `conf.auth.client.enabled`         | Enable ZooKeeper client-server authentication. It uses SASL/Digest-MD5                                                    | `false`                 |
+| `conf.auth.client.clientUser`      | User that will use ZooKeeper clients to auth                                                                              | `""`                    |
+| `conf.auth.client.clientPassword`  | Password that will use ZooKeeper clients to auth                                                                          | `""`                    |
+| `conf.auth.client.serverUsers`     | Comma, semicolon or whitespace separated list of user to be created                                                       | `""`                    |
+| `conf.auth.client.serverPasswords` | Comma, semicolon or whitespace separated list of passwords to assign to users when created                                | `""`                    |
+| `conf.auth.client.existingSecret`  | Use existing secret (ignores previous passwords)                                                                          | `""`                    |
+| `conf.auth.quorum.enabled`         | Enable ZooKeeper server-server authentication. It uses SASL/Digest-MD5                                                    | `false`                 |
+| `conf.auth.quorum.learnerUser`     | User that the ZooKeeper quorumLearner will use to authenticate to quorumServers.                                          | `""`                    |
+| `conf.auth.quorum.learnerPassword` | Password that the ZooKeeper quorumLearner will use to authenticate to quorumServers.                                      | `""`                    |
+| `conf.auth.quorum.serverUsers`     | Comma, semicolon or whitespace separated list of users for the quorumServers.                                             | `""`                    |
+| `conf.auth.quorum.serverPasswords` | Comma, semicolon or whitespace separated list of passwords to assign to users when created                                | `""`                    |
+| `conf.auth.quorum.existingSecret`  | Use existing secret (ignores previous passwords)                                                                          | `""`                    |
 
 ### Statefulset PodPolicy parameters
 
