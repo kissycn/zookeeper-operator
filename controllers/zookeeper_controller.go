@@ -19,8 +19,14 @@ package controllers
 import (
 	"context"
 	hadoopv1alpha1 "dtweave.io/zookeeper-operator/api/v1alpha1"
+	make2 "dtweave.io/zookeeper-operator/pkg/make"
+	"fmt"
+	"github.com/go-logr/logr"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
+	"reflect"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -29,6 +35,7 @@ import (
 type ZookeeperReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
+	log    logr.Logger
 }
 
 //+kubebuilder:rbac:groups=hadoop.dtweave.io,resources=zookeepers,verbs=get;list;watch;create;update;patch;delete
@@ -58,10 +65,9 @@ func (r *ZookeeperReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	}
 
 	for _, f := range []reconcileFunc{
-		r.reconcileFinalizers,
 		r.reconcileConfigMap,
 	} {
-		if err = f(&instance); err != nil {
+		if err = f(ctx, &instance); err != nil {
 			return ctrl.Result{}, err
 		}
 	}
@@ -76,14 +82,59 @@ func (r *ZookeeperReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-type reconcileFunc func(instance *hadoopv1alpha1.Zookeeper) error
+type reconcileFunc func(ctx context.Context, zookeeper *hadoopv1alpha1.Zookeeper) error
 
-func (r *ZookeeperReconciler) reconcileFinalizers(instance *hadoopv1alpha1.Zookeeper) (err error) {
+func (r *ZookeeperReconciler) reconcileFinalizers(ctx context.Context, zookeeper *hadoopv1alpha1.Zookeeper) (err error) {
 	// TODO
 	return nil
 }
 
-func (r *ZookeeperReconciler) reconcileConfigMap(instance *hadoopv1alpha1.Zookeeper) error {
+func (r *ZookeeperReconciler) reconcileConfigMap(ctx context.Context, zookeeper *hadoopv1alpha1.Zookeeper) (err error) {
+	var foundCM v1.ConfigMap
+	newCM, err := make2.Configmap(zookeeper)
+	if err != nil {
+		return err
+	}
+	err = ctrl.SetControllerReference(zookeeper, newCM, r.Scheme)
+	if err != nil {
+		return err
+	}
+
+	err = r.Client.Get(ctx, types.NamespacedName{
+		Name:      zookeeper.Name,
+		Namespace: zookeeper.Namespace,
+	}, &foundCM)
+
+	if err != nil && errors.IsNotFound(err) {
+		//log.Info("Creating a zookeeper configmap Name:", zookeeper.Name, " Namespace:", zookeeper.Namespace)
+		fmt.Println("Creating a zookeeper configmap Name:", zookeeper.Name, " Namespace:", zookeeper.Namespace)
+		err = r.Client.Create(ctx, newCM)
+		if err != nil {
+			return err
+		}
+	} else if err != nil {
+		return err
+	} else {
+		if !reflect.DeepEqual(foundCM.Data, newCM.Data) {
+			foundCM.Data = newCM.Data
+			foundCM.BinaryData = newCM.BinaryData
+			err = r.Client.Update(ctx, &foundCM)
+			if err != nil {
+				return err
+			}
+		} else {
+			fmt.Println("not equal!!!")
+		}
+	}
+	return nil
+}
+
+func (r *ZookeeperReconciler) reconcileStatefulSet(instance *hadoopv1alpha1.Zookeeper) error {
+
+	return nil
+}
+
+func (r *ZookeeperReconciler) reconcileService(instance *hadoopv1alpha1.Zookeeper) error {
 
 	return nil
 }
