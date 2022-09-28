@@ -17,6 +17,7 @@ limitations under the License.
 package v1alpha1
 
 import (
+	v12 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -31,8 +32,6 @@ type ZookeeperSpec struct {
 	// Conf is zookeeper config
 	//
 	Conf ZookeeperConf `json:"conf,omitempty"`
-	// +kubebuilder:default:="fuck"
-	DefaultTest string `json:"defaultTest"`
 	//Replicas The valid range of size is from 1 to 7.
 	//
 	// +kubebuilder:validation:Maximum:=7
@@ -40,19 +39,61 @@ type ZookeeperSpec struct {
 	// +kubebuilder:default:=1
 	// +required
 	// +kubebuilder:validation:Required
-	ReplicasCount int32 `json:"replicasCount,omitempty"`
-	// Labels is pod labels,key-value pairs
+	ReplicasCount *int32 `json:"replicasCount,omitempty"`
+	// PodLabels Extra labels for ZooKeeper pods
 	//
-	// +kubebuilder:validation:Optional
-	Labels map[string]string `json:"labels,omitempty"`
-	// Annotations specifies the annotations to attach to pods the operator
+	// +optional
+	PodLabels map[string]string
+	// PodAnnotations Annotations for ZooKeeper pods
 	//
-	// +kubebuilder:validation:Optional
-	Annotations map[string]string `json:"annotations,omitempty"`
+	// +optional
+	PodAnnotations map[string]string
+	// PodManagementPolicy StatefulSet controller supports relax its ordering guarantees while preserving its uniqueness and identity guarantees
+	// +kubebuilder:validation:Enum:=Parallel;OrderedReady
+	// +kubebuilder:default:=Parallel
+	PodManagementPolicy v12.PodManagementPolicyType `json:"podManagementPolicy,omitempty"`
+	// HostAlias is an optional list of hosts and IPs that will be injected into the pod's hosts  file if specified.
+	//
+	// +optional
+	HostAlias []v1.HostAlias `json:"hostAlias,omitempty"`
+
 	// NodeSelector specifies a map of key-value pairs.
 	//
 	// +kubebuilder:validation:Optional
 	NodeSelector map[string]string `json:"nodeSelector,omitempty"`
+	// Affinity The scheduling constraints on pods.
+	//
+	// +kubebuilder:validation:Optional
+	Affinity *v1.Affinity `json:"affinity,omitempty"`
+	//Tolerations specifies the pod's
+	//
+	// +kubebuilder:validation:Optional
+	Tolerations []v1.Toleration `json:"tolerations,omitempty"`
+	// TopologySpreadConstraints Topology Spread Constraints for pod assignment spread across your cluster among failure-domains. Evaluated as a template
+	//
+	//  +optional
+	TopologySpreadConstraints []v1.TopologySpreadConstraint `json:"topologySpreadConstraints,omitempty"`
+	// PriorityClassName If specified, indicates the pod's priority. "system-node-critical" and
+	// "system-cluster-critical" are two special keywords which indicate the
+	// highest priorities with the former being the highest priority.
+	//
+	// +optional
+	PriorityClassName string `json:"priorityClassName,omitempty"`
+	// If specified, the pod will be dispatched by specified scheduler.
+	// If not specified, the pod will be dispatched by default scheduler.
+	//
+	// +optional
+	SchedulerName string `json:"schedulerName,omitempty"`
+	// PodSecurityContext holds pod-level security attributes and common container settings.
+	// Optional: Defaults to empty.  See type description for default values of each field.
+	// +optional
+	PodSecurityContext *v1.PodSecurityContext `json:"podSecurityContext,omitempty"`
+	// ContainerSecurityContext defines the security options the container should be run with.
+	// If set, the fields of SecurityContext override the equivalent fields of PodSecurityContext.
+	// More info: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+	// +optional
+	ContainerSecurityContext *v1.SecurityContext `json:"containerSecurityContext,omitempty"`
+
 	// Image is the  container image.
 	//
 	Image ContainerImage `json:"image,omitempty"`
@@ -65,14 +106,7 @@ type ZookeeperSpec struct {
 	Liveness Probe `json:"liveness,omitempty"`
 	//Resources is the resource requirements for the container.
 	Resources v1.ResourceRequirements `json:"resources,omitempty"`
-	// Affinity The scheduling constraints on pods.
-	//
-	// +kubebuilder:validation:Optional
-	Affinity v1.Affinity `json:"affinity,omitempty"`
-	//Toleration specifies the pod's
-	//
-	// +kubebuilder:validation:Optional
-	Toleration v1.Toleration `json:"toleration,omitempty"`
+
 	// ExtraVolumeMounts Optionally specify extra list of additional volumeMounts for the ZooKeeper container(s)
 	//
 	// +kubebuilder:validation:Optional
