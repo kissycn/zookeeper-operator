@@ -17,7 +17,7 @@ export MY_ID_FILE=${ZOO_CONF_DIR}/myid
 #HOSTNAME="$(hostname -s)"
 HOSTNAME="web-1"
 
-function getServerId() {
+function setServerId() {
   if [[ -f $MY_ID_FILE ]]; then
     export ZOO_SERVER_ID="$(cat $MY_ID_FILE)"
   else
@@ -33,3 +33,5 @@ function getServerId() {
   fi
   return
 }
+
+setServerId
