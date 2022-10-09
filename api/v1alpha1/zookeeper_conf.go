@@ -15,11 +15,11 @@ const (
 type ZookeeperConf struct {
 	// DataDir Dedicated data log directory
 	//
-	// +kubebuilder:default:=""
+	// +kubebuilder:default:="/opt/dtweave/zookeeper/data"
 	DataDir string `json:"dataDir,omitempty"`
 	// DataLogDir Dedicated data log directory
 	//
-	// +kubebuilder:default:=""
+	// +kubebuilder:default:="/opt/dtweave/zookeeper/data_log"
 	DataLogDir string `json:"dataLogDir,omitempty"`
 
 	// TickTime is the length of a single tick, which is the basic time unit used
