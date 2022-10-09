@@ -362,6 +362,10 @@ type ZookeeperDataPvc struct {
 	ExistingClaim string `json:"existingClaim,omitempty"`
 }
 
-func (instace Zookeeper) Image() string {
+func (instace *Zookeeper) Image() string {
 	return fmt.Sprintf("%s/%s:%s", instace.Spec.Image.Registry, instace.Spec.Image.Repository, instace.Spec.Image.Tag)
+}
+
+func (instance *Zookeeper) ConfigMapName() string {
+	return fmt.Sprintf("%s-cm", instance.Name)
 }
