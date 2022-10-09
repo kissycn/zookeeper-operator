@@ -17,6 +17,7 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"fmt"
 	v12 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -104,7 +105,10 @@ type ZookeeperSpec struct {
 	Readiness Probe `json:"readiness,omitempty"`
 	//
 	Liveness Probe `json:"liveness,omitempty"`
-	//Resources is the resource requirements for the container.
+	// Resources Compute Resources required by this container.
+	// Cannot be updated.
+	// More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	// +optional
 	Resources v1.ResourceRequirements `json:"resources,omitempty"`
 
 	// ExtraVolumeMounts Optionally specify extra list of additional volumeMounts for the ZooKeeper container(s)
@@ -115,6 +119,10 @@ type ZookeeperSpec struct {
 	//
 	// +kubebuilder:validation:Optional
 	ExtraVolumes v1.Volume `json:"extraVolumes,omitempty"`
+	// EnvVar represents an environment variable present in a Container.
+	//
+	// +kubebuilder:validation:Optional
+	ExtraEnvVars []v1.EnvVar `json:"extraEnvVars,omitempty"`
 	// InitContainers Add additional init containers to the ZooKeeper pod(s)
 	//
 	// +kubebuilder:validation:Optional
@@ -211,7 +219,7 @@ type ContainerPorts struct {
 type Probe struct {
 	// Enabled  livenessProbe on ZooKeeper containers
 	//
-	// +kubebuilder:default:=false
+	// +kubebuilder:default:=true
 	Enabled bool `json:"enabled,omitempty"`
 	// InitialDelaySeconds Initial delay seconds for Probe
 	//
@@ -352,4 +360,8 @@ type ZookeeperDataPvc struct {
 	//
 	// +kubebuilder:validation:Optional
 	ExistingClaim string `json:"existingClaim,omitempty"`
+}
+
+func (instace Zookeeper) Image() string {
+	return fmt.Sprintf("%s/%s:%s", instace.Spec.Image.Registry, instace.Spec.Image.Repository, instace.Spec.Image.Tag)
 }
