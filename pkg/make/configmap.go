@@ -23,7 +23,7 @@ func Configmap(instance *v1alpha1.Zookeeper) (*v1.ConfigMap, error) {
 
 	cm := &v1.ConfigMap{
 		ObjectMeta: v12.ObjectMeta{
-			Name:      instance.Name,
+			Name:      instance.ConfigMapName(),
 			Namespace: instance.Namespace,
 		},
 		Data: map[string]string{
