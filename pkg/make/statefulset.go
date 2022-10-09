@@ -10,6 +10,14 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+const (
+	DATA_VOLUME_NAME     = "data-volume"
+	DATA_LOG_VOLUME_NAME = "data-log-volume"
+	DATA_PVC_NAME        = "data-pvc"
+	DATA_LOG_PVC_NAME    = "data-log-pvc"
+	CONFIG_NAME          = "config"
+)
+
 func StatefulSet(instance *v1alpha1.Zookeeper) {
 	matchLabels := map[string]string{
 		"hadoop.dtweave.io/component": "zookeeper",
@@ -90,8 +98,24 @@ func StatefulSet(instance *v1alpha1.Zookeeper) {
 									Exec: &corev1.ExecAction{Command: []string{fmt.Sprintf("'/bin/bash', '-c', 'echo \"ruok\" | nc -w localhost %d | grep imok'", instance.Spec.ContainerPorts.Client)}},
 								},
 							},
+							VolumeMounts: append([]corev1.VolumeMount{
+								{
+									Name:      CONFIG_NAME,
+									MountPath: "/opt/dtweave/zookeeper/conf/zoo.cfg",
+									SubPath:   "zoo.cfg",
+								},
+								{
+									Name:      DATA_VOLUME_NAME,
+									MountPath: instance.Spec.Conf.DataDir,
+								},
+								{
+									Name:      DATA_LOG_VOLUME_NAME,
+									MountPath: instance.Spec.Conf.DataLogDir,
+								},
+							}, instance.Spec.ExtraVolumeMounts...),
 						},
 					},
+					Volumes: GetVolumes(instance),
 				},
 			},
 		},
@@ -121,7 +145,8 @@ func StatefulSet(instance *v1alpha1.Zookeeper) {
 
 }
 
-func GetEnv(conf v1alpha1.ZookeeperConf, params []corev1.EnvVar) []corev1.EnvVar {
+// GetEnv get customer env
+func GetEnv(conf v1alpha1.ZookeeperConf, extra []corev1.EnvVar) []corev1.EnvVar {
 	envs := []corev1.EnvVar{
 		{
 			Name:  "ZOO_DATA_DIR",
@@ -132,9 +157,72 @@ func GetEnv(conf v1alpha1.ZookeeperConf, params []corev1.EnvVar) []corev1.EnvVar
 			Value: conf.DataLogDir,
 		},
 	}
-	if nil != params && len(params) > 0 {
-		envs = append(envs, params...)
+	if nil != extra && len(extra) > 0 {
+		envs = append(envs, extra...)
 	}
 
 	return envs
+}
+
+// GetVolumes get customer volumes and extra volumes
+func GetVolumes(instance *v1alpha1.Zookeeper) []corev1.Volume {
+	volumes := []corev1.Volume{}
+
+	getCMVolume := func(name string, mapName string) corev1.Volume {
+		return corev1.Volume{
+			Name: name,
+			VolumeSource: corev1.VolumeSource{
+				ConfigMap: &corev1.ConfigMapVolumeSource{
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: mapName,
+					},
+				},
+			},
+		}
+	}
+
+	getPvcVolume := func(name string, claimName string) corev1.Volume {
+		return corev1.Volume{
+			Name: name,
+			VolumeSource: corev1.VolumeSource{
+				PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
+					ClaimName: claimName,
+				},
+			},
+		}
+	}
+
+	getEmptyVolume := func(name string) corev1.Volume {
+		return corev1.Volume{
+			Name: name,
+			VolumeSource: corev1.VolumeSource{
+				EmptyDir: &corev1.EmptyDirVolumeSource{},
+			},
+		}
+	}
+
+	// check exists configMap
+	name := instance.ConfigMapName()
+	if "" != instance.Spec.Conf.ExistingCfgConfigmap {
+		name = instance.Spec.Conf.ExistingCfgConfigmap
+	}
+	volumes = append(volumes, getCMVolume(CONFIG_NAME, name))
+
+	// if persistence set pvc else set empty dir
+	if instance.Spec.Persistence.Enabled {
+		// check exists data pvc
+		if "" != instance.Spec.Persistence.Data.ExistingClaim {
+			volumes = append(volumes, getPvcVolume(DATA_VOLUME_NAME, instance.Spec.Persistence.Data.ExistingClaim))
+		}
+		if "" != instance.Spec.Persistence.Data.ExistingClaim {
+			volumes = append(volumes, getPvcVolume(DATA_LOG_VOLUME_NAME, instance.Spec.Persistence.DataLog.ExistingClaim))
+		}
+	} else {
+		volumes = append(volumes,
+			getEmptyVolume(DATA_VOLUME_NAME),
+			getEmptyVolume(DATA_LOG_VOLUME_NAME),
+		)
+	}
+
+	return volumes
 }
