@@ -118,7 +118,7 @@ type ZookeeperSpec struct {
 	// ExtraVolumes  Optionally specify extra list of additional volumes for the ZooKeeper pod(s)
 	//
 	// +kubebuilder:validation:Optional
-	ExtraVolumes v1.Volume `json:"extraVolumes,omitempty"`
+	ExtraVolumes []v1.Volume `json:"extraVolumes,omitempty"`
 	// EnvVar represents an environment variable present in a Container.
 	//
 	// +kubebuilder:validation:Optional
@@ -336,7 +336,7 @@ type ZookeeperPersistence struct {
 	//
 	// +kubebuilder:validation:Enum:=ReadWriteOnce;ReadOnlyMany;ReadWriteMany;ReadWriteOncePod
 	// +kubebuilder:default:=ReadWriteOnce
-	AccessModes string `json:"accessModes,omitempty"`
+	AccessModes v1.PersistentVolumeAccessMode `json:"accessModes,omitempty"`
 	// Data Zookeeper Data persistence
 	//
 	// +kubebuilder:validation:Optional
@@ -355,7 +355,7 @@ type ZookeeperDataPvc struct {
 	// Selector to match an existing Persistent Volume for ZooKeeper's data PVC
 	//
 	// +kubebuilder:validation:Optional
-	Selector map[string]string `json:"selector,omitempty"`
+	Selector *metav1.LabelSelector `json:"selector,omitempty"`
 	// ExistingClaim Name of an existing PVC to use (only when deploying a single replica)
 	//
 	// +kubebuilder:validation:Optional
