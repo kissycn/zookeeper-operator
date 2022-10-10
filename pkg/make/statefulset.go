@@ -7,6 +7,7 @@ import (
 	"github.com/gogo/protobuf/proto"
 	v1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -118,6 +119,7 @@ func StatefulSet(instance *v1alpha1.Zookeeper) {
 					Volumes: GetVolumes(instance),
 				},
 			},
+			VolumeClaimTemplates: getPvcTemplate(instance),
 		},
 	}
 
@@ -180,7 +182,7 @@ func GetVolumes(instance *v1alpha1.Zookeeper) []corev1.Volume {
 			},
 		}
 	}
-
+	// get volume by pvc
 	getPvcVolume := func(name string, claimName string) corev1.Volume {
 		return corev1.Volume{
 			Name: name,
@@ -191,7 +193,7 @@ func GetVolumes(instance *v1alpha1.Zookeeper) []corev1.Volume {
 			},
 		}
 	}
-
+	// get volume by empty dir
 	getEmptyVolume := func(name string) corev1.Volume {
 		return corev1.Volume{
 			Name: name,
@@ -214,6 +216,7 @@ func GetVolumes(instance *v1alpha1.Zookeeper) []corev1.Volume {
 		if "" != instance.Spec.Persistence.Data.ExistingClaim {
 			volumes = append(volumes, getPvcVolume(DATA_VOLUME_NAME, instance.Spec.Persistence.Data.ExistingClaim))
 		}
+		// check exists data log pvc
 		if "" != instance.Spec.Persistence.Data.ExistingClaim {
 			volumes = append(volumes, getPvcVolume(DATA_LOG_VOLUME_NAME, instance.Spec.Persistence.DataLog.ExistingClaim))
 		}
@@ -223,6 +226,62 @@ func GetVolumes(instance *v1alpha1.Zookeeper) []corev1.Volume {
 			getEmptyVolume(DATA_LOG_VOLUME_NAME),
 		)
 	}
+	if len(instance.Spec.ExtraVolumes) > 0 {
+		volumes = append(volumes, instance.Spec.ExtraVolumes...)
+	}
 
 	return volumes
+}
+
+func getPvcTemplate(instance *v1alpha1.Zookeeper) []corev1.PersistentVolumeClaim {
+	templates := []corev1.PersistentVolumeClaim{}
+
+	if instance.Spec.Persistence.Enabled {
+		// no customization found, then use template to create pvc
+		if "" == instance.Spec.Persistence.Data.ExistingClaim {
+			dataTemplate := corev1.PersistentVolumeClaim{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:        DATA_VOLUME_NAME,
+					Annotations: utils.MergeMaps(instance.Spec.Persistence.Annotation, instance.Spec.CommonAnnotations),
+					Labels:      instance.Spec.CommonLabels,
+				},
+				Spec: corev1.PersistentVolumeClaimSpec{
+					AccessModes: []corev1.PersistentVolumeAccessMode{
+						instance.Spec.Persistence.AccessModes,
+					},
+					Resources: corev1.ResourceRequirements{
+						Requests: map[corev1.ResourceName]resource.Quantity{
+							"storage": resource.MustParse(instance.Spec.Persistence.Data.Size),
+						},
+					},
+					Selector: instance.Spec.Persistence.Data.Selector,
+				},
+			}
+			templates = append(templates, dataTemplate)
+		}
+
+		if "" == instance.Spec.Persistence.DataLog.ExistingClaim {
+			dataLogTemplate := corev1.PersistentVolumeClaim{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:        DATA_LOG_VOLUME_NAME,
+					Annotations: utils.MergeMaps(instance.Spec.Persistence.Annotation, instance.Spec.CommonAnnotations),
+					Labels:      instance.Spec.CommonLabels,
+				},
+				Spec: corev1.PersistentVolumeClaimSpec{
+					AccessModes: []corev1.PersistentVolumeAccessMode{
+						instance.Spec.Persistence.AccessModes,
+					},
+					Resources: corev1.ResourceRequirements{
+						Requests: map[corev1.ResourceName]resource.Quantity{
+							"storage": resource.MustParse(instance.Spec.Persistence.DataLog.Size),
+						},
+					},
+					Selector: instance.Spec.Persistence.DataLog.Selector,
+				},
+			}
+			templates = append(templates, dataLogTemplate)
+		}
+	}
+
+	return templates
 }
