@@ -30,7 +30,6 @@ import (
 	"reflect"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
 
 // ZookeeperReconciler reconciles a Zookeeper object
@@ -54,7 +53,7 @@ type ZookeeperReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.12.2/pkg/reconcile
 func (r *ZookeeperReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	r.log = logf.Log.WithName("controller")
+	r.log = ctrl.Log.WithName("controller")
 
 	var instance hadoopv1alpha1.Zookeeper
 	err := r.Client.Get(ctx, req.NamespacedName, &instance)
@@ -109,7 +108,9 @@ func (r *ZookeeperReconciler) reconcileConfigMap(ctx context.Context, zookeeper 
 	}, &foundCM)
 
 	if err != nil && errors.IsNotFound(err) {
-		r.log.Info("Creating a zookeeper configmap Name:", zookeeper.Name, " Namespace:", zookeeper.Namespace)
+		//r.log.Info("Creating a zookeeper configmap ", zap.String("Name", zookeeper.Name), zap.String("Namespace", zookeeper.Namespace))
+		//r.log.Info("Creating a zookeeper configmap Name:", zookeeper.Name, " Namespace:", zookeeper.Namespace)
+		fmt.Println("Creating a zookeeper configmap Name:", zookeeper.Name, " Namespace:", zookeeper.Namespace)
 		err = r.Client.Create(ctx, newCM)
 		if err != nil {
 			return err

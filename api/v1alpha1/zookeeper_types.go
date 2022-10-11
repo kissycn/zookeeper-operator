@@ -43,11 +43,11 @@ type ZookeeperSpec struct {
 	// PodLabels Extra labels for ZooKeeper pods
 	//
 	// +optional
-	PodLabels map[string]string
+	PodLabels map[string]string `json:"podLabels,omitempty"`
 	// PodAnnotations Annotations for ZooKeeper pods
 	//
 	// +optional
-	PodAnnotations map[string]string
+	PodAnnotations map[string]string `json:"podAnnotations,omitempty"`
 	// PodManagementPolicy StatefulSet controller supports relax its ordering guarantees while preserving its uniqueness and identity guarantees
 	// +kubebuilder:validation:Enum:=Parallel;OrderedReady
 	// +kubebuilder:default:=Parallel
