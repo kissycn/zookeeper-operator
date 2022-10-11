@@ -1,0 +1,54 @@
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  creationTimestamp: null
+  name: mutating-webhook-configuration
+webhooks:
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /mutate-hadoop-dtweave-io-v1alpha1-zookeeper
+  failurePolicy: Fail
+  name: mzookeeper.kb.io
+  rules:
+  - apiGroups:
+    - hadoop.dtweave.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - zookeepers
+  sideEffects: None
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  creationTimestamp: null
+  name: validating-webhook-configuration
+webhooks:
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-hadoop-dtweave-io-v1alpha1-zookeeper
+  failurePolicy: Fail
+  name: vzookeeper.kb.io
+  rules:
+  - apiGroups:
+    - hadoop.dtweave.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - zookeepers
+  sideEffects: None
