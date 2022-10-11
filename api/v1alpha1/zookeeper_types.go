@@ -186,7 +186,10 @@ type ContainerImage struct {
 	// +kubebuilder:validation:Enum=Always;Never;IfNotPresent
 	PullPolicy v1.PullPolicy `json:"pullPolicy,omitempty"`
 	// PullSecrets Specify docker-registry secret names as an array
-	PullSecrets []string `json:"pullSecrets,omitempty"`
+	// More info: https://kubernetes.io/docs/concepts/containers/images#specifying-imagepullsecrets-on-a-pod
+	//
+	// +kubebuilder:validation:Optional
+	PullSecrets []v1.LocalObjectReference `json:"pullSecrets,omitempty"`
 }
 
 type ContainerPorts struct {
