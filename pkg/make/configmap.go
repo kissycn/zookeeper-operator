@@ -7,6 +7,7 @@ import (
 	"html/template"
 	v1 "k8s.io/api/core/v1"
 	v12 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"os"
 )
 
 func Configmap(instance *v1alpha1.Zookeeper) (*v1.ConfigMap, error) {
@@ -41,12 +42,14 @@ func Configmap(instance *v1alpha1.Zookeeper) (*v1.ConfigMap, error) {
 }
 
 func parseTemplate(conf *v1alpha1.ZookeeperConf) (string, error) {
-	tmpl, err := template.ParseFiles("pkg/template/zoo.cfg")
+	path, err2 := os.Getwd()
+	if err2 != nil {
+		fmt.Println("unable to get dir")
+	}
+
+	tmpl, err := template.ParseFiles(path + "/pkg/template/zoo.cfg")
 	if err != nil {
-		tmpl, err = template.ParseFiles("../template/zoo.cfg")
-		if err != nil {
-			return "", err
-		}
+		return "", err
 	}
 
 	b := new(bytes.Buffer)
