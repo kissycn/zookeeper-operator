@@ -22,13 +22,15 @@ import (
 	make2 "dtweave.io/zookeeper-operator/pkg/make"
 	"fmt"
 	"github.com/go-logr/logr"
-	v1 "k8s.io/api/core/v1"
+	v1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"reflect"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
 
 // ZookeeperReconciler reconciles a Zookeeper object
@@ -52,7 +54,8 @@ type ZookeeperReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.12.2/pkg/reconcile
 func (r *ZookeeperReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	//log := log.FromContext(ctx)
+	r.log = logf.Log.WithName("controller")
+
 	var instance hadoopv1alpha1.Zookeeper
 	err := r.Client.Get(ctx, req.NamespacedName, &instance)
 	if err != nil {
@@ -90,7 +93,7 @@ func (r *ZookeeperReconciler) reconcileFinalizers(ctx context.Context, zookeeper
 }
 
 func (r *ZookeeperReconciler) reconcileConfigMap(ctx context.Context, zookeeper *hadoopv1alpha1.Zookeeper) (err error) {
-	var foundCM v1.ConfigMap
+	var foundCM corev1.ConfigMap
 	newCM, err := make2.Configmap(zookeeper)
 	if err != nil {
 		return err
@@ -106,8 +109,7 @@ func (r *ZookeeperReconciler) reconcileConfigMap(ctx context.Context, zookeeper 
 	}, &foundCM)
 
 	if err != nil && errors.IsNotFound(err) {
-		//log.Info("Creating a zookeeper configmap Name:", zookeeper.Name, " Namespace:", zookeeper.Namespace)
-		fmt.Println("Creating a zookeeper configmap Name:", zookeeper.Name, " Namespace:", zookeeper.Namespace)
+		r.log.Info("Creating a zookeeper configmap Name:", zookeeper.Name, " Namespace:", zookeeper.Namespace)
 		err = r.Client.Create(ctx, newCM)
 		if err != nil {
 			return err
@@ -129,12 +131,48 @@ func (r *ZookeeperReconciler) reconcileConfigMap(ctx context.Context, zookeeper 
 	return nil
 }
 
-func (r *ZookeeperReconciler) reconcileStatefulSet(instance *hadoopv1alpha1.Zookeeper) error {
+func (r *ZookeeperReconciler) reconcileStatefulSet(ctx context.Context, zookeeper *hadoopv1alpha1.Zookeeper) error {
+	var foundSts v1.StatefulSet
+	sts := make2.StatefulSet(zookeeper)
+	err := r.Client.Get(ctx, types.NamespacedName{
+		Name:      zookeeper.Name,
+		Namespace: zookeeper.Namespace,
+	}, &foundSts)
+
+	if nil != err && errors.IsNotFound(err) {
+		err := ctrl.SetControllerReference(zookeeper, sts, r.Scheme)
+		if err != nil {
+			return err
+		}
+
+		r.log.Info("Creating a new Zookeeper StatefulSet", "StatefulSet.Namespace", zookeeper.Namespace, "StatefulSet.Name", zookeeper.Name)
+		err = r.Client.Create(ctx, sts)
+		if err != nil {
+			return err
+		}
+	} else if nil != err {
+		return err
+	} else {
+		r.log.Info("Updating StatefulSet",
+			"StatefulSet.Namespace", foundSts.Namespace,
+			"StatefulSet.Name", foundSts.Name)
+		foundSts.Spec.Template = sts.Spec.Template
+
+		foundSts.Spec.Replicas = sts.Spec.Replicas
+		foundSts.Spec.Template = sts.Spec.Template
+		foundSts.Spec.PodManagementPolicy = sts.Spec.PodManagementPolicy
+
+		err := r.Client.Update(ctx, &foundSts)
+		if err != nil {
+			return err
+		}
+
+		// TODO status and replicas ready update
+	}
 
 	return nil
 }
 
 func (r *ZookeeperReconciler) reconcileService(instance *hadoopv1alpha1.Zookeeper) error {
-
 	return nil
 }
