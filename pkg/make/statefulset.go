@@ -261,6 +261,10 @@ func getPvcTemplate(instance *v1alpha1.Zookeeper) []corev1.PersistentVolumeClaim
 					Selector: instance.Spec.Persistence.Data.Selector,
 				},
 			}
+			if nil != instance.Spec.Persistence.StorageClassName {
+				dataTemplate.Spec.StorageClassName = instance.Spec.Persistence.StorageClassName
+			}
+
 			templates = append(templates, dataTemplate)
 		}
 
@@ -283,6 +287,10 @@ func getPvcTemplate(instance *v1alpha1.Zookeeper) []corev1.PersistentVolumeClaim
 					Selector: instance.Spec.Persistence.DataLog.Selector,
 				},
 			}
+			if nil != instance.Spec.Persistence.StorageClassName {
+				dataLogTemplate.Spec.StorageClassName = instance.Spec.Persistence.StorageClassName
+			}
+
 			templates = append(templates, dataLogTemplate)
 		}
 	}

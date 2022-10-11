@@ -25,7 +25,6 @@ import (
 
 // ZookeeperSpec defines the desired state of Zookeeper
 type ZookeeperSpec struct {
-	// Important: Run "make" to regenerate code after modifying this file
 	// CommonLabels Add labels to all the deployed resources
 	CommonLabels map[string]string `json:"commonLabels,omitempty"`
 	// CommonAnnotations Add annotations to all the deployed resources
@@ -330,7 +329,7 @@ type ZookeeperPersistence struct {
 	// StorageClass PVC Storage Class for ZooKeeper data volume
 	//
 	// +kubebuilder:validation:Optional
-	StorageClass string `json:"storageClass,omitempty"`
+	StorageClassName *string `json:"StorageClassName,omitempty"`
 	// Annotation Annotations for the PVC
 	//
 	// +kubebuilder:validation:Optional
