@@ -152,7 +152,7 @@ func StatefulSet(instance *v1alpha1.Zookeeper) *v1.StatefulSet {
 }
 
 // GetEnv get customer env
-func GetEnv(conf v1alpha1.ZookeeperConf, extra []corev1.EnvVar) []corev1.EnvVar {
+func GetEnv(conf v1alpha1.ZookeeperConf, extraEnv []corev1.EnvVar) []corev1.EnvVar {
 	envs := []corev1.EnvVar{
 		{
 			Name:  "ZOO_DATA_DIR",
@@ -163,8 +163,8 @@ func GetEnv(conf v1alpha1.ZookeeperConf, extra []corev1.EnvVar) []corev1.EnvVar 
 			Value: conf.DataLogDir,
 		},
 	}
-	if nil != extra && len(extra) > 0 {
-		envs = append(envs, extra...)
+	if nil != extraEnv && len(extraEnv) > 0 {
+		envs = append(envs, extraEnv...)
 	}
 
 	return envs

@@ -84,25 +84,17 @@ type ZookeeperSpec struct {
 	//
 	// +optional
 	SchedulerName string `json:"schedulerName,omitempty"`
-	// PodSecurityContext holds pod-level security attributes and common container settings.
-	// Optional: Defaults to empty.  See type description for default values of each field.
-	// +optional
-	PodSecurityContext *v1.PodSecurityContext `json:"podSecurityContext,omitempty"`
-	// ContainerSecurityContext defines the security options the container should be run with.
-	// If set, the fields of SecurityContext override the equivalent fields of PodSecurityContext.
-	// More info: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
-	// +optional
-	ContainerSecurityContext *v1.SecurityContext `json:"containerSecurityContext,omitempty"`
-
 	// Image is the  container image.
 	//
 	Image ContainerImage `json:"image,omitempty"`
 	// ContainerPorts
 	//
 	ContainerPorts ContainerPorts `json:"containerPorts,omitempty"`
-	//
+	// Readiness readinessProbe on ZooKeeper containers
+	// More info https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
 	Readiness Probe `json:"readiness,omitempty"`
-	//
+	// Liveness livenessProbe on ZooKeeper containers
+	// More info https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
 	Liveness Probe `json:"liveness,omitempty"`
 	// Resources Compute Resources required by this container.
 	// Cannot be updated.
