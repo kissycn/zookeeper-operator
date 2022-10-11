@@ -105,8 +105,6 @@ make undeploy
 | `topologySpreadConstraints`          | Topology Spread Constraints for pod assignment spread across your cluster among failure-domains. Evaluated as a template                                                                          | `[]`                  |
 | `priorityClassName`                  | Name of the existing priority class to be used by ZooKeeper pods, priority class needs to be created beforehand                                                                                   | `""`                  |
 | `schedulerName`                      | Kubernetes pod scheduler registry                                                                                                                                                                 | `""`                  |
-| `podSecurityContext`                 | ZooKeeper pods' Security Context                                                                                                                                                                  | {}                    |
-| `containerSecurityContext`           | ZooKeeper containers' Security Context                                                                                                                                                            | {}                    |
 | `image.registry`                     | ZooKeeper image registry                                                                                                                                                                          | `docker.io`           |
 | `image.repository`                   | ZooKeeper image repository                                                                                                                                                                        | `bitnami/zookeeper`   |
 | `image.tag`                          | ZooKeeper image tag (immutable tags are recommended)                                                                                                                                              | `3.8.0-debian-11-r30` |
@@ -185,7 +183,7 @@ make undeploy
 | Name                                | Description                                                                    | Value               |
 |-------------------------------------| ------------------------------------------------------------------------------ | ------------------- |
 | `persistence.enabled`               | Enable ZooKeeper data persistence using PVC. If false, use emptyDir            | `true`              |
-| `persistence.storageClass`          | PVC Storage Class for ZooKeeper data volume                                    | `""`                |
+| `persistence.storageClassName`      | PVC Storage Class for ZooKeeper data volume                                    | `""`                |
 | `persistence.accessModes`           | PVC Access modes                                                               | `["ReadWriteOnce"]` |
 | `persistence.annotations`           | Annotations for the PVC                                                        | `{}`                |
 | `persistence.data.size`             | PVC Storage Request for ZooKeeper data volume                                  | `8Gi`               |
