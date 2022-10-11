@@ -30,11 +30,11 @@ func Configmap(instance *v1alpha1.Zookeeper) (*v1.ConfigMap, error) {
 			"zoo.cfg": cfg,
 		},
 	}
-	if instance.Annotations != nil {
-		cm.ObjectMeta.Annotations = instance.Annotations
+	if instance.Spec.CommonAnnotations != nil {
+		cm.ObjectMeta.Annotations = instance.Spec.CommonAnnotations
 	}
-	if instance.Labels != nil {
-		cm.ObjectMeta.Labels = instance.Labels
+	if instance.Spec.CommonLabels != nil {
+		cm.ObjectMeta.Labels = instance.Spec.CommonLabels
 	}
 
 	return cm, nil
