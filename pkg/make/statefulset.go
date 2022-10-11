@@ -19,7 +19,7 @@ const (
 	CONFIG_NAME          = "config"
 )
 
-func StatefulSet(instance *v1alpha1.Zookeeper) {
+func StatefulSet(instance *v1alpha1.Zookeeper) *v1.StatefulSet {
 	matchLabels := map[string]string{
 		"hadoop.dtweave.io/component": "zookeeper",
 		"hadoop.dtweave.io/app":       instance.Name,
@@ -144,7 +144,11 @@ func StatefulSet(instance *v1alpha1.Zookeeper) {
 	if "" != instance.Spec.SchedulerName {
 		statefulSet.Spec.Template.Spec.SchedulerName = instance.Spec.SchedulerName
 	}
+	if nil != instance.Spec.Image.PullSecrets {
+		statefulSet.Spec.Template.Spec.ImagePullSecrets = instance.Spec.Image.PullSecrets
+	}
 
+	return statefulSet
 }
 
 // GetEnv get customer env
