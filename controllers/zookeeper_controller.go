@@ -104,7 +104,7 @@ func (r *ZookeeperReconciler) reconcileConfigMap(ctx context.Context, zookeeper 
 	}
 
 	err = r.Client.Get(ctx, types.NamespacedName{
-		Name:      zookeeper.Name,
+		Name:      newCM.Name,
 		Namespace: zookeeper.Namespace,
 	}, &foundCM)
 
