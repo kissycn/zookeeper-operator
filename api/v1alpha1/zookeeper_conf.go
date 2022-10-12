@@ -11,7 +11,7 @@ const (
 )
 
 // zookeeper conf params detail reference this:
-// https://github.com/apache/zookeeper/blob/master/zookeeper-docs/src/main/resources/markdown/zookeeperAdmin.md
+// More info：https://github.com/apache/zookeeper/blob/master/zookeeper-docs/src/main/resources/markdown/zookeeperAdmin.md
 type ZookeeperConf struct {
 	// DataDir Dedicated data log directory
 	//
