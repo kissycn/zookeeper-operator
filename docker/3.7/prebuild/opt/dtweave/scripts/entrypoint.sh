@@ -15,8 +15,8 @@ fi
 #export ZOO_DYNAMIC_CONF_FILE="${ZOO_CONF_DIR}/zoo.cfg.dynamic"
 export MY_ID_FILE=${ZOO_CONF_DIR}/myid
 
-#HOSTNAME="$(hostname -s)"
-HOSTNAME="web-1"
+HOSTNAME="$(hostname -s)"
+#HOSTNAME="web-1"
 
 if [[ -f $MY_ID_FILE ]]; then
   export ZOO_SERVER_ID="$(cat $MY_ID_FILE)"

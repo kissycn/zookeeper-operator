@@ -58,8 +58,7 @@ RUN set -eux; \
     gpg --batch --verify "$DISTRO_NAME.tar.gz.asc" "$DISTRO_NAME.tar.gz"; \
     tar -zxf "$DISTRO_NAME.tar.gz"; \
     mv "$DISTRO_NAME/"* "$ZOO_BASE_DIR"; \
-    rm -rf "$GNUPGHOME" "$DISTRO_NAME.tar.gz" "$DISTRO_NAME.tar.gz.asc"; \
-#    mv $ZOO_CONF_DIR/zoo_sample.cfg $ZOO_CONF_DIR/zoo.cfg
+    rm -rf "$GNUPGHOME" "$DISTRO_NAME.tar.gz" "$DISTRO_NAME.tar.gz.asc";
 
 COPY prebuild /
 RUN chown -R zookeeper:zookeeper /opt/dtweave/; \
