@@ -90,8 +90,8 @@ func StatefulSet(instance *v1alpha1.Zookeeper) *v1.StatefulSet {
 									Exec: &corev1.ExecAction{Command: []string{
 										"sh",
 										"-c",
-										fmt.Sprintf("echo ruok | nc -w %d localhost %d | grep imok",
-											instance.Spec.Readiness.ProbeCommandTimeout, instance.Spec.ContainerPorts.Client)}},
+										fmt.Sprintf("/opt/dtweave/scripts/liveness.sh %d",
+											instance.Spec.ContainerPorts.Client)}},
 								},
 							},
 							LivenessProbe: &corev1.Probe{
@@ -103,8 +103,8 @@ func StatefulSet(instance *v1alpha1.Zookeeper) *v1.StatefulSet {
 									Exec: &corev1.ExecAction{Command: []string{
 										"sh",
 										"-c",
-										fmt.Sprintf("echo \"ruok\" | nc -w %d localhost %d | grep imok",
-											instance.Spec.Liveness.ProbeCommandTimeout, instance.Spec.ContainerPorts.Client)}},
+										fmt.Sprintf("/opt/dtweave/scripts/liveness.sh %d",
+											instance.Spec.ContainerPorts.Client)}},
 								},
 							},
 							VolumeMounts: append([]corev1.VolumeMount{
@@ -223,7 +223,7 @@ func GetVolumes(instance *v1alpha1.Zookeeper) []corev1.Volume {
 	volumes = append(volumes, getCMVolume(CONFIG_NAME, name))
 
 	// if persistence set pvc else set empty dir
-	if instance.Spec.Persistence.Enabled {
+	if nil != instance.Spec.Persistence.Enabled && *instance.Spec.Persistence.Enabled {
 		// check exists data pvc
 		if "" != instance.Spec.Persistence.Data.ExistingClaim {
 			volumes = append(volumes, getPvcVolume(DATA_VOLUME_NAME, instance.Spec.Persistence.Data.ExistingClaim))
@@ -248,7 +248,7 @@ func GetVolumes(instance *v1alpha1.Zookeeper) []corev1.Volume {
 func getPvcTemplate(instance *v1alpha1.Zookeeper) []corev1.PersistentVolumeClaim {
 	templates := []corev1.PersistentVolumeClaim{}
 
-	if instance.Spec.Persistence.Enabled {
+	if nil != instance.Spec.Persistence.Enabled && *instance.Spec.Persistence.Enabled {
 		// no customization found, then use template to create pvc
 		if "" == instance.Spec.Persistence.Data.ExistingClaim {
 			dataTemplate := corev1.PersistentVolumeClaim{

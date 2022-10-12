@@ -16,11 +16,13 @@ func Configmap(instance *v1alpha1.Zookeeper) (*v1.ConfigMap, error) {
 		return nil, err
 	}
 
+	cfg = cfg + "\n"
 	if instance.Spec.Conf.AdditionalConfig != nil {
 		for k, v := range instance.Spec.Conf.AdditionalConfig {
 			cfg = cfg + fmt.Sprintf("%s=%s\n", k, v)
 		}
 	}
+	cfg = cfg + fmt.Sprintf("%s=%d\n", "clientPort", instance.Spec.ContainerPorts.Client)
 
 	cm := &v1.ConfigMap{
 		ObjectMeta: v12.ObjectMeta{
@@ -54,6 +56,7 @@ func parseTemplate(conf *v1alpha1.ZookeeperConf) (string, error) {
 
 	b := new(bytes.Buffer)
 	err = tmpl.Execute(b, conf)
+
 	if err != nil {
 		return "", err
 	}
