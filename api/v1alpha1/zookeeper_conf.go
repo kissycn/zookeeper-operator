@@ -35,7 +35,7 @@ type ZookeeperConf struct {
 	// SyncLimit is the amount of time, in ticks, to allow followers to sync with
 	// Zookeeper.
 	//
-	// +kubebuilder:default:=2
+	// +kubebuilder:default:=5
 	SyncLimit int32 `json:"syncLimit,omitempty"`
 
 	// MaxClientCnxns Limits the number of concurrent connections that a single client, identified
@@ -64,6 +64,9 @@ type ZookeeperConf struct {
 	//
 	// +kubebuilder:default:=""
 	JvmFlags string `json:"jvmFlags,omitempty"`
+	// WhitelistCommands zookeeper exec command
+	// +kubebuilder:default:="cons, envi, conf, crst, srvr, stat, mntr, ruok"
+	WhitelistCommands string `json:"whitelistCommands,omitempty"`
 
 	// Auth is zookeeper auth
 	Auth ZookeeperAuth `json:"auth,omitempty"`
@@ -77,12 +80,6 @@ type ZookeeperConf struct {
 	// The name of an existing ConfigMap with your custom configuration for ZooKeeper zoo.cfg file
 	// Notice：If set this value operator will replace all other conf item
 	ExistingCfgConfigmap string `json:"existingCfgConfigmap,omitempty"`
-
-	// extraEnvVars
-	// extraEnvVarsCM
-	// extraEnvVarsSecret
-	// command
-	// args
 }
 
 type Autopurge struct {

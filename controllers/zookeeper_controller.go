@@ -68,6 +68,7 @@ func (r *ZookeeperReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 
 	for _, f := range []reconcileFunc{
 		r.reconcileConfigMap,
+		r.reconcileStatefulSet,
 	} {
 		if err = f(ctx, &instance); err != nil {
 			return ctrl.Result{}, err

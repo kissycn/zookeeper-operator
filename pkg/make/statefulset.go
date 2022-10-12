@@ -59,9 +59,8 @@ func StatefulSet(instance *v1alpha1.Zookeeper) *v1.StatefulSet {
 							Name:            "zookeeper",
 							Image:           instance.Image(),
 							ImagePullPolicy: instance.Spec.Image.PullPolicy,
-							// TODO webhook set default value
-							Resources: instance.Spec.Resources,
-							Env:       GetEnv(instance.Spec.Conf, instance.Spec.ExtraEnvVars),
+							Resources:       instance.Spec.Resources,
+							Env:             GetEnv(instance.Spec.Conf, instance.Spec.ExtraEnvVars),
 							Ports: []corev1.ContainerPort{
 								{
 									Name:          "client",
@@ -87,16 +86,25 @@ func StatefulSet(instance *v1alpha1.Zookeeper) *v1.StatefulSet {
 								FailureThreshold:    instance.Spec.Readiness.FailureThreshold,
 								SuccessThreshold:    instance.Spec.Readiness.SuccessThreshold,
 								ProbeHandler: corev1.ProbeHandler{
-									Exec: &corev1.ExecAction{Command: []string{fmt.Sprintf("'/bin/bash', '-c', 'echo \"ruok\" | nc -w localhost %d | grep imok'", instance.Spec.ContainerPorts.Client)}},
+									// "'/bin/bash', '-c', 'echo \"ruok\" | nc -w %d localhost %d | grep imok'"
+									Exec: &corev1.ExecAction{Command: []string{
+										"sh",
+										"-c",
+										fmt.Sprintf("echo ruok | nc -w %d localhost %d | grep imok",
+											instance.Spec.Readiness.ProbeCommandTimeout, instance.Spec.ContainerPorts.Client)}},
 								},
 							},
 							LivenessProbe: &corev1.Probe{
-								InitialDelaySeconds: instance.Spec.Readiness.InitialDelaySeconds,
-								PeriodSeconds:       instance.Spec.Readiness.PeriodSeconds,
-								TimeoutSeconds:      instance.Spec.Readiness.TimeoutSeconds,
-								FailureThreshold:    instance.Spec.Readiness.FailureThreshold,
+								InitialDelaySeconds: instance.Spec.Liveness.InitialDelaySeconds,
+								PeriodSeconds:       instance.Spec.Liveness.PeriodSeconds,
+								TimeoutSeconds:      instance.Spec.Liveness.TimeoutSeconds,
+								FailureThreshold:    instance.Spec.Liveness.FailureThreshold,
 								ProbeHandler: corev1.ProbeHandler{
-									Exec: &corev1.ExecAction{Command: []string{fmt.Sprintf("'/bin/bash', '-c', 'echo \"ruok\" | nc -w localhost %d | grep imok'", instance.Spec.ContainerPorts.Client)}},
+									Exec: &corev1.ExecAction{Command: []string{
+										"sh",
+										"-c",
+										fmt.Sprintf("echo \"ruok\" | nc -w %d localhost %d | grep imok",
+											instance.Spec.Liveness.ProbeCommandTimeout, instance.Spec.ContainerPorts.Client)}},
 								},
 							},
 							VolumeMounts: append([]corev1.VolumeMount{
@@ -281,7 +289,7 @@ func getPvcTemplate(instance *v1alpha1.Zookeeper) []corev1.PersistentVolumeClaim
 					},
 					Resources: corev1.ResourceRequirements{
 						Requests: map[corev1.ResourceName]resource.Quantity{
-							"storage": resource.MustParse(instance.Spec.Persistence.DataLog.Size),
+							corev1.ResourceStorage: resource.MustParse(instance.Spec.Persistence.DataLog.Size),
 						},
 					},
 					Selector: instance.Spec.Persistence.DataLog.Selector,

@@ -77,12 +77,12 @@ type ZookeeperSpec struct {
 	// "system-cluster-critical" are two special keywords which indicate the
 	// highest priorities with the former being the highest priority.
 	//
-	// +optional
+	// +kubebuilder:validation:Optional
 	PriorityClassName string `json:"priorityClassName,omitempty"`
 	// If specified, the pod will be dispatched by specified scheduler.
 	// If not specified, the pod will be dispatched by default scheduler.
 	//
-	// +optional
+	// +kubebuilder:validation:Optional
 	SchedulerName string `json:"schedulerName,omitempty"`
 	// Image is the  container image.
 	//
@@ -99,7 +99,6 @@ type ZookeeperSpec struct {
 	// Resources Compute Resources required by this container.
 	// Cannot be updated.
 	// More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	// +optional
 	Resources v1.ResourceRequirements `json:"resources,omitempty"`
 
 	// ExtraVolumeMounts Optionally specify extra list of additional volumeMounts for the ZooKeeper container(s)
@@ -168,13 +167,13 @@ type ContainerImage struct {
 	// +kubebuilder:default:=dtweave/zookeeper
 	Repository string `json:"repository,omitempty"`
 	// Tag ZooKeeper image tag (immutable tags are recommended)
-	// +kubebuilder:default:=v1.0.0
+	// +kubebuilder:default:=v1.0.0-3.7.1
 	Tag string `json:"tag,omitempty"`
 	// Digest ZooKeeper image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
 	Digest string `json:"digest,omitempty"`
 	// PullPolicy ZooKeeper image pull policy
-	// +kubebuilder:default:=IfNotPresent
 	// +kubebuilder:validation:Enum=Always;Never;IfNotPresent
+	// +kubebuilder:default:=IfNotPresent
 	PullPolicy v1.PullPolicy `json:"pullPolicy,omitempty"`
 	// PullSecrets Specify docker-registry secret names as an array
 	// More info: https://kubernetes.io/docs/concepts/containers/images#specifying-imagepullsecrets-on-a-pod
@@ -217,32 +216,27 @@ type Probe struct {
 	Enabled bool `json:"enabled,omitempty"`
 	// InitialDelaySeconds Initial delay seconds for Probe
 	//
-	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:default:=30
-	InitialDelaySeconds int32 `json:"initialDelaySeconds"`
+	InitialDelaySeconds int32 `json:"initialDelaySeconds,omitempty"`
 	//  PeriodSeconds Period seconds for Probe
 	//
-	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:default:=10
-	PeriodSeconds int32 `json:"periodSeconds"`
+	PeriodSeconds int32 `json:"periodSeconds,omitempty"`
 	// TimeoutSeconds Timeout seconds for Probe
 	//
-	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:default:=5
-	TimeoutSeconds int32 `json:"timeoutSeconds"`
+	TimeoutSeconds int32 `json:"timeoutSeconds,omitempty"`
 	// FailureThreshold  Failure threshold for Probe
 	//
-	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:default:=6
-	FailureThreshold int32 `json:"failureThreshold"`
+	FailureThreshold int32 `json:"failureThreshold,omitempty"`
 	// SuccessThreshold Success threshold for Probe
 	//
-	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:default:=1
-	SuccessThreshold int32 `json:"successThreshold"`
+	SuccessThreshold int32 `json:"successThreshold,omitempty"`
 	// ProbeCommandTimeout Probe command timeout for Probe
 	//
-	// +kubebuilder:default:=2
+	// +kubebuilder:default:=5
 	ProbeCommandTimeout int32 `json:"probeCommandTimeout,omitempty"`
 }
 
@@ -344,7 +338,7 @@ type ZookeeperPersistence struct {
 type ZookeeperDataPvc struct {
 	// Size PVC Storage Request for ZooKeeper data volume
 	//
-	// +kubebuilder:default:="20Gi"
+	// +kubebuilder:default:="8Gi"
 	Size string `json:"size,omitempty"`
 	// Selector to match an existing Persistent Volume for ZooKeeper's data PVC
 	//
