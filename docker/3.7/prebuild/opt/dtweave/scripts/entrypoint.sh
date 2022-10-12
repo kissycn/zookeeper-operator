@@ -13,7 +13,7 @@ fi
 
 #export ZOO_STATIC_CONF_FILE="${ZOO_CONF_DIR}/zoo.cfg"
 #export ZOO_DYNAMIC_CONF_FILE="${ZOO_CONF_DIR}/zoo.cfg.dynamic"
-export MY_ID_FILE=${ZOO_CONF_DIR}/myid
+export MY_ID_FILE=${ZOO_DATA_DIR}/myid
 
 HOSTNAME="$(hostname -s)"
 #HOSTNAME="web-1"
