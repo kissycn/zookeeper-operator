@@ -213,7 +213,7 @@ type Probe struct {
 	// Enabled  livenessProbe on ZooKeeper containers
 	//
 	// +kubebuilder:default:=true
-	Enabled bool `json:"enabled,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
 	// InitialDelaySeconds Initial delay seconds for Probe
 	//
 	// +kubebuilder:default:=30
@@ -304,14 +304,14 @@ type HeadlessService struct {
 	// PublishNotReadyAddresses  If the ZooKeeper headless service should publish DNS records for not ready pods
 	//
 	// +kubebuilder:default:=true
-	PublishNotReadyAddresses bool `json:"publishNotReadyAddresses,omitempty"`
+	PublishNotReadyAddresses *bool `json:"publishNotReadyAddresses,omitempty"`
 }
 
 type ZookeeperPersistence struct {
 	// Enabled Enable ZooKeeper data persistence using PVC. If false, use emptyDir
 	//
 	// +kubebuilder:default:=true
-	Enabled bool `json:"enabled,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
 	// StorageClass PVC Storage Class for ZooKeeper data volume
 	//
 	// +kubebuilder:validation:Optional

@@ -66,11 +66,10 @@ func (r *Zookeeper) Default() {
 	if r.Spec.Resources.Limits.Memory().Value() == 0 {
 		r.Spec.Resources.Limits[v1.ResourceMemory] = resource.MustParse("1Gi")
 	}
-
-	// set readinessProbe default
-	if r.Spec.Readiness.InitialDelaySeconds == 0 {
-		r.Spec.Readiness.InitialDelaySeconds = 5
-	}
+	//// set readinessProbe default
+	//if r.Spec.Readiness.InitialDelaySeconds == 0 {
+	//	r.Spec.Readiness.InitialDelaySeconds = 5
+	//}
 }
 
 // TODO(user): change verbs to "verbs=create;update;delete" if you want to enable deletion validation.

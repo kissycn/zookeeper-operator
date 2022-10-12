@@ -67,7 +67,8 @@ type ZookeeperConf struct {
 	// WhitelistCommands zookeeper exec command
 	// +kubebuilder:default:="cons, envi, conf, crst, srvr, stat, mntr, ruok"
 	WhitelistCommands string `json:"whitelistCommands,omitempty"`
-
+	// AdminServer adminServer config
+	Admin AdminServer `json:"admin,omitempty"`
 	// Auth is zookeeper auth
 	Auth ZookeeperAuth `json:"auth,omitempty"`
 
@@ -93,6 +94,21 @@ type Autopurge struct {
 	PurgeInterval int32 `json:"purgeInterval,omitempty"`
 }
 
+type AdminServer struct {
+	// EnableServer Set to "false" to disable the AdminServer. By default the AdminServer is enabled.
+	//
+	// +kubebuilder:default:=true
+	EnableServer *bool `json:"enableServer,omitempty"`
+	// ServerPort The port the embedded Jetty server listens on. Defaults to 9090.
+	//
+	// +kubebuilder:default:=9090
+	ServerPort int32 `json:"serverPort,omitempty"`
+	// CommandURL The URL for listing and issuing commands relative to the root URL. Defaults to "/commands".
+	//
+	// +kubebuilder:default:=/commands
+	CommandURL string `json:"commandURL,omitempty"`
+}
+
 type ZookeeperAuth struct {
 	Client ClientAuth `json:"client,omitempty"`
 	Quorum QuorumAuth `json:"quorum,omitempty"`
@@ -102,7 +118,7 @@ type ClientAuth struct {
 	// Enabled ZooKeeper client-server authentication. It uses SASL/Digest-MD5
 	//
 	// +kubebuilder:default:=false
-	Enabled bool `json:"enabled,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
 	// ClientUser User that will use ZooKeeper clients to auth
 	//
 	ClientUser string `json:"clientUser,omitempty"`
@@ -124,7 +140,7 @@ type QuorumAuth struct {
 	// Enabled ZooKeeper client-server authentication. It uses SASL/Digest-MD5
 	//
 	// +kubebuilder:default:=false
-	Enabled bool `json:"enabled,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
 	// ClientUser User that will use ZooKeeper clients to auth
 	//
 	LearnerUser string `json:"learnerUser,omitempty"`
