@@ -5,18 +5,37 @@ set -e
 # Load logging library
 . /opt/dtweave/scripts/utils/liblog.sh
 
-# Allow the container to be started with `--user`
-if [[ "$1" = 'zkServer.sh' && "$(id -u)" = '0' ]]; then
-    chown -R zookeeper "$DT_ROOT_DIR" "$ZOO_BASE_DIR" "$ZOO_CONF_DIR"
-    exec gosu zookeeper "$0" "$@"
-fi
-
-#export ZOO_STATIC_CONF_FILE="${ZOO_CONF_DIR}/zoo.cfg"
-#export ZOO_DYNAMIC_CONF_FILE="${ZOO_CONF_DIR}/zoo.cfg.dynamic"
+export ZOO_BASE_DIR=/opt/modules/zookeeper-3.7.1/zk
+export ZOO_CONF_DIR=${ZOO_BASE_DIR}/conf
+export ZOO_DATA_DIR=${ZOO_BASE_DIR}/data
+export ZOO_DYNAMIC_CONF_FILE="${ZOO_CONF_DIR}/zoo.cfg.dynamic"
 export MY_ID_FILE=${ZOO_DATA_DIR}/myid
+export HOST=web-0
+export DOMAIN=zookeeker-headless
+export FOLLOWER_PORT=2888
+export ELECTION_PORT=3888
+export CLIENT_PORT=2181
 
-HOSTNAME="$(hostname -s)"
-#HOSTNAME="web-1"
+#HOSTNAME="$(hostname -s)"
+HOSTNAME="web-1"
+ConnStr=""
+Replicas=3
+#ReadyReplicas=3
+
+function zkConfig() {
+  echo "server.$1=$HOST.$DOMAIN:$FOLLOWER_PORT:$ELECTION_PORT;$CLIENT_PORT"
+}
+
+function getConnStr() {
+   ConnStr=""
+   for i in $(seq 0 $((${Replicas} - 1))); do
+     ConnStr="${ConnStr}${ConnStr:+"\n"}" zkConfig $((i+1))
+   done
+}
+
+getConnStr
+echo ${ConnStr}
+
 
 if [[ -f $MY_ID_FILE ]]; then
   export ZOO_SERVER_ID="$(cat $MY_ID_FILE)"
@@ -32,4 +51,5 @@ else
   fi
 fi
 
-exec "$@"
+
+#exec "$@"
