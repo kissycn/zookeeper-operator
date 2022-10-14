@@ -22,7 +22,7 @@ func Configmap(instance *v1alpha1.Zookeeper) (*v1.ConfigMap, error) {
 			cfg = cfg + fmt.Sprintf("%s=%s\n", k, v)
 		}
 	}
-	cfg = cfg + fmt.Sprintf("%s=%d\n", "clientPort", instance.Spec.ContainerPorts.Client)
+	//cfg = cfg + fmt.Sprintf("%s=%d\n", "clientPort", instance.Spec.ContainerPorts.Client)
 
 	cm := &v1.ConfigMap{
 		ObjectMeta: v12.ObjectMeta{
