@@ -100,6 +100,10 @@ type ZookeeperSpec struct {
 	// Cannot be updated.
 	// More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
 	Resources v1.ResourceRequirements `json:"resources,omitempty"`
+	// Domain of the kubernetes cluster, defaults to cluster.local
+	//
+	// +kubebuilder:default:=svc.cluster.local
+	KubernetesClusterDomain string `json:"kubernetesClusterDomain,omitempty"`
 
 	// ExtraVolumeMounts Optionally specify extra list of additional volumeMounts for the ZooKeeper container(s)
 	//
