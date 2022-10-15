@@ -133,21 +133,21 @@ func (r *ZookeeperReconciler) reconcileConfigMap(ctx context.Context, zookeeper 
 	return nil
 }
 
-func (r *ZookeeperReconciler) reconcileStatefulSet(ctx context.Context, zookeeper *hadoopv1alpha1.Zookeeper) error {
+func (r *ZookeeperReconciler) reconcileStatefulSet(ctx context.Context, instance *hadoopv1alpha1.Zookeeper) error {
 	var foundSts v1.StatefulSet
-	sts := make2.StatefulSet(zookeeper)
+	sts := make2.StatefulSet(instance)
 	err := r.Client.Get(ctx, types.NamespacedName{
-		Name:      zookeeper.Name,
-		Namespace: zookeeper.Namespace,
+		Name:      instance.Name,
+		Namespace: instance.Namespace,
 	}, &foundSts)
 
 	if nil != err && errors.IsNotFound(err) {
-		err := ctrl.SetControllerReference(zookeeper, sts, r.Scheme)
+		err := ctrl.SetControllerReference(instance, sts, r.Scheme)
 		if err != nil {
 			return err
 		}
 
-		r.log.Info("Creating a new Zookeeper StatefulSet", "StatefulSet.Namespace", zookeeper.Namespace, "StatefulSet.Name", zookeeper.Name)
+		r.log.Info("Creating a new Zookeeper StatefulSet", "StatefulSet.Namespace", instance.Namespace, "StatefulSet.Name", instance.Name)
 		err = r.Client.Create(ctx, sts)
 		if err != nil {
 			return err
@@ -155,26 +155,28 @@ func (r *ZookeeperReconciler) reconcileStatefulSet(ctx context.Context, zookeepe
 	} else if nil != err {
 		return err
 	} else {
-		r.log.Info("Updating StatefulSet",
-			"StatefulSet.Namespace", foundSts.Namespace,
-			"StatefulSet.Name", foundSts.Name)
-		foundSts.Spec.Template = sts.Spec.Template
-
+		r.log.Info("Updating StatefulSet", "StatefulSet.Namespace", foundSts.Namespace, "StatefulSet.Name", foundSts.Name)
 		foundSts.Spec.Replicas = sts.Spec.Replicas
 		foundSts.Spec.Template = sts.Spec.Template
 		foundSts.Spec.PodManagementPolicy = sts.Spec.PodManagementPolicy
-
 		err := r.Client.Update(ctx, &foundSts)
 		if err != nil {
 			return err
 		}
 
-		// TODO status and replicas ready update
+		// Update Cluster status
+		instance.Status.Replicas = foundSts.Status.Replicas
+		instance.Status.ReadyReplicas = foundSts.Status.ReadyReplicas
 	}
 
 	return nil
 }
 
 func (r *ZookeeperReconciler) reconcileService(instance *hadoopv1alpha1.Zookeeper) error {
+	return nil
+}
+
+func (r *ZookeeperReconciler) reconcileStatus(ctx context.Context, instance *hadoopv1alpha1.Zookeeper) error {
+
 	return nil
 }
