@@ -23,6 +23,31 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+//+kubebuilder:object:root=true
+//+kubebuilder:subresource:status
+
+// Zookeeper is the Schema for the zookeepers API
+type Zookeeper struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+
+	Spec   ZookeeperSpec   `json:"spec,omitempty"`
+	Status ZookeeperStatus `json:"status,omitempty"`
+}
+
+//+kubebuilder:object:root=true
+
+// ZookeeperList contains a list of Zookeeper
+type ZookeeperList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata,omitempty"`
+	Items           []Zookeeper `json:"items"`
+}
+
+func init() {
+	SchemeBuilder.Register(&Zookeeper{}, &ZookeeperList{})
+}
+
 // ZookeeperSpec defines the desired state of Zookeeper
 type ZookeeperSpec struct {
 	// CommonLabels Add labels to all the deployed resources
@@ -134,33 +159,48 @@ type ZookeeperSpec struct {
 
 // ZookeeperStatus defines the observed state of Zookeeper
 type ZookeeperStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	// Replicas is the number of  desired replicas in the cluster
+	// +kubebuilder:default:=0
+	Replicas int32 `json:"replicas,omitempty"`
+	// ReadyReplicas is the number of  ready replicas in the cluster
+	// +kubebuilder:default:=0
+	ReadyReplicas int32 `json:"readyReplicas,omitempty"`
+	// Members is the zookeeper members in the cluster
+	Members MemberStatus `json:"members,omitempty"`
+	// CurrentVersion is zookeeper cluster current version
+	CurrentVersion string `json:"currentVersion,omitempty"`
+	// TargetVersion is zookeeper cluster upgrading version
+	TargetVersion string `json:"targetVersion,omitempty"`
+	// ClusterStatus zookeeper cluster status
+	ClusterStatus ConditionType `json:"clusterStatus,omitempty"`
 }
 
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
-
-// Zookeeper is the Schema for the zookeepers API
-type Zookeeper struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-
-	Spec   ZookeeperSpec   `json:"spec,omitempty"`
-	Status ZookeeperStatus `json:"status,omitempty"`
+// MemberStatus is the status of the members
+type MemberStatus struct {
+	// Ready pod name
+	Ready []string `json:"ready,omitempty"`
+	// Unready pod name
+	Unready []string `json:"unready,omitempty"`
 }
 
-//+kubebuilder:object:root=true
+type ConditionType string
 
-// ZookeeperList contains a list of Zookeeper
-type ZookeeperList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []Zookeeper `json:"items"`
-}
+const (
+	ClusterRunning   ConditionType = "Running"
+	ClusterReady                   = "Ready"
+	ClusterUpgrading               = "Upgrading"
+	ClusterError                   = "Error"
+)
 
-func init() {
-	SchemeBuilder.Register(&Zookeeper{}, &ZookeeperList{})
+type ClusterCondition struct {
+	// Type of cluster condition
+	Type ConditionType `json:"type,omitempty"`
+	// Status of the condition, one of True, False, Unknown.
+	Status v1.ConditionStatus `json:"status,omitempty"`
+	// Reason The reason for the condition's last transition.
+	Reason string `json:"reason,omitempty"`
+	// Message indicating details about the transition.
+	Message string `json:"message,omitempty"`
 }
 
 type ContainerImage struct {
